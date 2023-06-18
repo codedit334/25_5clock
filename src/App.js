@@ -1,12 +1,11 @@
-import "./App.css";
-import { FiArrowDown, FiArrowUp } from "react-icons/fi";
-import { CgPlayPause } from "react-icons/cg";
-import { BsFillPlayFill } from "react-icons/bs";
-import { GrPowerReset } from "react-icons/gr";
-import { useEffect, useState } from "react";
-import { useRef } from "react";
+import './App.css';
+import { FiArrowDown, FiArrowUp } from 'react-icons/fi';
+import { CgPlayPause } from 'react-icons/cg';
+import { BsFillPlayFill } from 'react-icons/bs';
+import { GrPowerReset } from 'react-icons/gr';
+import { useEffect, useState, useRef } from 'react';
 
-function App() {
+export default function App() {
   const [newSession, setNewSession] = useState(true);
 
   const [session, setSession] = useState(25);
@@ -22,14 +21,13 @@ function App() {
   const [playTimer, setPlayTimer] = useState(false);
 
   const playBool = useRef(false);
-  let audioBool = useRef(false);
+  const audioBool = useRef(false);
   const audioQuery = useRef();
-
 
   const resetButton = () => {
     playBool.current = false;
-    document.querySelector(".beep").pause();
-    document.querySelector(".beep").currentTime = 0;
+    document.querySelector('.beep').pause();
+    document.querySelector('.beep').currentTime = 0;
     setSession(25);
     setBreakTime(5);
     setMinutesDone(false);
@@ -39,18 +37,15 @@ function App() {
     setSeconds(0);
   };
 
-  useEffect(()=> {
-    console.log("out")
-    if(audioBool.current){
-      console.log("in")
-    document.querySelector(".beep").play();
-    audioBool.current = false;}
-  },[audioBool.current])
-
+  const handleKeyDown = (e) => {
+    console.log(e.key);
+  };
   useEffect(() => {
-    if (isBreak) countdown(breakTime);
-    else countdown(session);
-  }, [isBreak]);
+    if (audioBool.current) {
+      document.querySelector('.beep').play();
+      audioBool.current = false;
+    }
+  }, [audioBool.current]);
 
   const countdown = (minutesArg) => {
     setMinutes(minutesArg);
@@ -58,17 +53,19 @@ function App() {
   };
 
   useEffect(() => {
+    if (isBreak) countdown(breakTime);
+    else countdown(session);
+  }, [isBreak]);
+
+  useEffect(() => {
     if (playTimer && playBool.current) {
-      let myTimeout = setTimeout(async () => {
+      setTimeout(async () => {
         if (minutes === 0 && playTimer) {
           setMinutesDone(true);
         }
 
         if (seconds === 0 && minutesDone && playTimer) {
-          // document.querySelector(".beep").play();
-          // setTimeout(() => {}, 1500);
-
-          audioBool.current = true
+          audioBool.current = true;
           setIsBreak(!isBreak);
           setTimeout(() => {}, 1500);
           return 1;
@@ -85,6 +82,7 @@ function App() {
             setSeconds(seconds - 1);
           }
         }
+        return 0;
       }, 1000);
     }
   }, [playBool.current, minutes, seconds]);
@@ -95,8 +93,11 @@ function App() {
         <div className="break-wrapper">
           <div id="break-label">Break Length</div>
           <div className="break-params">
-            <div
+            <button
               id="break-increment"
+              type="button"
+              tabIndex={0}
+              onKeyDown={handleKeyDown}
               onClick={() => {
                 if (playTimer) return 1;
                 if (breakTime === 60) {
@@ -106,13 +107,15 @@ function App() {
                   setBreakTime(breakTime + 1);
                   if (isBreak) setMinutes(breakTime + 1);
                 }
+                return 0;
               }}
             >
               <FiArrowUp />
-            </div>
+            </button>
             <div id="break-length">{breakTime}</div>
-            <div
+            <button
               id="break-decrement"
+              type="button"
               onClick={() => {
                 if (playTimer) return 1;
                 if (breakTime === 1) {
@@ -122,18 +125,20 @@ function App() {
                   setBreakTime(breakTime - 1);
                   if (isBreak) setMinutes(breakTime - 1);
                 }
+                return 0;
               }}
             >
               <FiArrowDown />
-            </div>
+            </button>
           </div>
         </div>
 
         <div className="session-wrapper">
           <div id="session-label">Session Length</div>
           <div className="session-params">
-            <div
+            <button
               id="session-increment"
+              type="button"
               onClick={() => {
                 if (playTimer) return 1;
                 setSeconds(0);
@@ -144,13 +149,15 @@ function App() {
                   setSession(session + 1);
                   if (!isBreak) setMinutes(session + 1);
                 }
+                return 0;
               }}
             >
               <FiArrowUp />
-            </div>
+            </button>
             <div id="session-length">{session}</div>
-            <div
+            <button
               id="session-decrement"
+              type="button"
               onClick={() => {
                 if (playTimer) return 1;
                 setSeconds(0);
@@ -161,37 +168,41 @@ function App() {
                   setSession(session - 1);
                   if (!isBreak) setMinutes(session - 1);
                 }
+                return 0;
               }}
             >
               <FiArrowDown />
-            </div>
+            </button>
           </div>
         </div>
       </div>
       <div className="timerWrapper">
-        <div id="timer-label">{isBreak ? "Break" : "Session"}</div>
+        <div id="timer-label">{isBreak ? 'Break' : 'Session'}</div>
         <div id="time-left">
+          {/* eslint-disable-next-line no-nested-ternary */}
           {seconds === 60
             ? minutes + 1
             : minutes === 0
-            ? "00"
-            : String(minutes).padStart(2, "0")}
+              ? '00'
+              : String(minutes).padStart(2, '0')}
           :
+          {/* eslint-disable-next-line no-nested-ternary */}
           {seconds === 60
-            ? "00"
+            ? '00'
             : seconds === 0
-            ? "00"
-            : String(seconds).padStart(2, "0")}
+              ? '00'
+              : String(seconds).padStart(2, '0')}
         </div>
       </div>
       <div className="buttons">
         <button
           type="button"
           id="start_stop"
-          style={{backgroundColor: "#FFEAAE", borderRadius: "20px", padding: "0", height: "120px"}}
+          style={{
+            backgroundColor: '#FFEAAE', borderRadius: '20px', padding: '0', height: '120px',
+          }}
           onClick={() => {
             playBool.current = !playBool.current;
-            console.log(playBool.current);
             if (newSession) countdown(session);
 
             setPlayTimer(!playTimer);
@@ -199,10 +210,10 @@ function App() {
           }}
         >
           <BsFillPlayFill />
-          <CgPlayPause  />
+          <CgPlayPause />
         </button>
         <button type="button" id="reset" onClick={() => resetButton()}>
-          <GrPowerReset  style={{backgroundColor: "#FFEAAE", borderRadius: "50%", padding: "10px" }} />
+          <GrPowerReset style={{ backgroundColor: '#FFEAAE', borderRadius: '50%', padding: '10px' }} />
         </button>
       </div>
       <audio
@@ -210,9 +221,9 @@ function App() {
         ref={audioQuery}
         className="beep"
         id="beep"
-      />
+      >
+        <track kind="captions" label="English" src="" default />
+      </audio>
     </div>
   );
 }
-
-export default App;
